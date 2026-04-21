@@ -18,6 +18,14 @@ Tech Stack
 
 Python, FastAPI, Scikit-learn, PostgreSQL, SQLAlchemy
 
+##  Demo
+
+###  Tech Support
+![Tech](https://github.com/bontle01-commits/AI-Multi-Skill-Chatbot-System/blob/main/images/tech.png?raw=true)
+
+###  Travel Assistant
+![Travel](https://github.com/bontle01-commits/AI-Multi-Skill-Chatbot-System/blob/main/images/travel.png?raw=true)
+
 
 Author
 
