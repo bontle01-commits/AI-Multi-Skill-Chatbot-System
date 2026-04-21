@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chatbot UI</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #e5ddd5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.chat-container {
+    width: 420px;
+    height: 600px;
+    background: #fff;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+
+.header {
+    background: #075e54;
+    color: white;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+
+.messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background: #ece5dd;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.msg {
+    padding: 10px 14px;
+    margin: 5px 10px;
+    border-radius: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    position: relative;
+}
+
+
+.user {
+    background: #dcf8c6;
+    align-self: flex-end;
+}
+
+
+.bot {
+    background: #fff;
+    align-self: flex-start;
+}
+
+
+.timestamp {
+    font-size: 10px;
+    color: #555;
+    margin-top: 4px;
+    text-align: right;
+}
+
+
+.input-area {
+    display: flex;
+    border-top: 1px solid #ccc;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+button {
+    padding: 12px 18px;
+    border: none;
+    background: #075e54;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0a7c66;
+}
+
+
+.analytics-btn {
+    background: #128c7e;
+    margin-left: 5px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="chat-container">
+
+    <div class="header">
+        University Chatbot 🤖
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+        <input type="text" id="input" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+        <button class="analytics-btn" onclick="loadAnalytics()">📊</button>
+    </div>
+
+</div>
+
+<script>
+async function sendMessage() {
+    let input = document.getElementById("input");
+    let message = input.value.trim();
+
+    if (!message) return;
+
+    addMessage(message, "user");
+
+    input.value = "";
+
+    try {
+        let response = await fetch("http://127.0.0.1:8000/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ text: message })
+        });
+
+        let data = await response.json();
+
+        addMessage(data.response, "bot");
+
+    } catch (error) {
+        addMessage("Error connecting to server.", "bot");
+    }
+}
+
+
+function addMessage(text, type) {
+    let div = document.createElement("div");
+    div.classList.add("msg", type);
+    div.innerText = text;
+
+    let time = document.createElement("div");
+    time.classList.add("timestamp");
+    time.innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+    div.appendChild(time);
+
+    let container = document.getElementById("messages");
+    container.appendChild(div);
+
+    container.scrollTop = container.scrollHeight;
+}
+
+
+document.getElementById("input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
+
+
+async function loadAnalytics() {
+    try {
+        let response = await fetch("http://127.0.0.1:8000/analytics");
+        let data = await response.json();
+        addMessage("📊 Analytics:\nTotal messages: " + data.total_messages + 
+                   "\nIntent stats: " + JSON.stringify(data.intent_stats), "bot");
+    } catch (error) {
+        addMessage("Error loading analytics.", "bot");
+    }
+}
+</script>
+
+</body>
+</html>
